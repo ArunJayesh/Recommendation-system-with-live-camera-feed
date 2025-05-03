@@ -52,11 +52,36 @@
       z-index: 1;
     }
 
+    /* Recommend button in video container */
+    #video-container #recommendBtn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background-color: #000;
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    /* Disabled and enabled styles for recommendations button */
+    #recommendBtn:disabled {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+    #recommendBtn:enabled {
+      background-color: #000;
+      cursor: pointer;
+    }
+
     #info-container {
       width: 25%;
       padding: 20px;
       background-color: #f4f4f4;
-      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     #log-output {
@@ -65,18 +90,20 @@
       white-space: pre-wrap;
     }
 
-    /* Keep webcam button in video area */
-    #video-container #webcamButton {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      padding: 10px;
-      background-color: #000;
-      color: white;
-      border: none;
-      font-size: 16px;
-      cursor: pointer;
-      z-index: 2;
+    #log-output {
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
+
+    #recommendations-container {
+      flex: 0 0 30%;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    #recommendations {
+      margin-top: 0;
+      line-height: 1.2;
     }
 
     /* Header layout: title and capture button side by side */
@@ -84,6 +111,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background-color: #f4f4f4;
+      z-index: 1;
     }
     #info-container .info-header #captureBtn {
       padding: 6px 12px;
@@ -100,9 +131,9 @@
   <header>Face + Object Detection Demo</header>
   <main>
     <div id="video-container">
-      <button id="webcamButton">Enable Webcam</button>
       <video id="video" autoplay muted></video>
       <canvas id="overlay"></canvas>
+      <button id="recommendBtn" disabled>Recommendations</button>
       <div id="liveView"></div>
     </div>
     <div id="info-container">
@@ -111,6 +142,10 @@
         <button id="captureBtn">Capture Snapshot</button>
       </div>
       <pre id="log-output"></pre>
+      <div id="recommendations-container">
+        <h4 style="color: black; margin: 0 0 2px;">Recommendations</h4>
+        <pre id="recommendations" style="color: orange; font-size: 14px; white-space: pre-wrap; margin: 0;"></pre>
+      </div>
     </div>
   </main>
 
