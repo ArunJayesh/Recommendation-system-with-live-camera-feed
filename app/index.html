@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Face + Object Detection Demo</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      text-align: center;
+      background-color: #000;
+      color: white;
+      padding: 20px;
+      font-size: 24px;
+    }
+
+    main {
+      display: flex;
+      height: calc(100vh - 80px);
+    }
+
+    #video-container {
+      width: 75%;
+      position: relative;
+      background-color: black;
+      overflow: hidden;
+    }
+
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+    }
+
+    /* Recommend button in video container */
+    #video-container #recommendBtn {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      background-color: #000;
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    /* Disabled and enabled styles for recommendations button */
+    #recommendBtn:disabled {
+      background-color: #888;
+      cursor: not-allowed;
+    }
+    #recommendBtn:enabled {
+      background-color: #000;
+      cursor: pointer;
+    }
+
+    #info-container {
+      width: 25%;
+      padding: 20px;
+      background-color: #f4f4f4;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #log-output {
+      color: green;
+      font-size: 14px;
+      white-space: pre-wrap;
+    }
+
+    #log-output {
+      flex: 1 1 auto;
+      overflow-y: auto;
+    }
+
+    #recommendations-container {
+      flex: 0 0 30%;
+      overflow-y: auto;
+      margin-top: 10px;
+    }
+
+    #recommendations {
+      margin-top: 0;
+      line-height: 1.2;
+    }
+
+    /* Header layout: title and capture button side by side */
+    #info-container .info-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      background-color: #f4f4f4;
+      z-index: 1;
+    }
+    #info-container .info-header #captureBtn {
+      padding: 6px 12px;
+      background-color: #000;
+      color: white;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <header>Face + Object Detection Demo</header>
+  <main>
+    <div id="video-container">
+      <video id="video" autoplay muted></video>
+      <canvas id="overlay"></canvas>
+      <button id="recommendBtn" disabled>Recommendations</button>
+      <div id="liveView"></div>
+    </div>
+    <div id="info-container">
+      <div class="info-header">
+        <h3>Detection Log</h3>
+        <button id="captureBtn">Capture Snapshot</button>
+      </div>
+      <pre id="log-output"></pre>
+      <div id="recommendations-container">
+        <h4 style="color: black; margin: 0 0 2px;">Recommendations</h4>
+        <pre id="recommendations" style="color: orange; font-size: 14px; white-space: pre-wrap; margin: 0;"></pre>
+      </div>
+    </div>
+  </main>
+
+  <!-- External libraries -->
+  <script type="module">
+    import { FilesetResolver, ObjectDetector } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2";
+
+    (async () => {
+      console.log("🔄 Initializing MediaPipe Object Detector...");
+      const vision = await FilesetResolver.forVisionTasks(
+        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.2/wasm"
+      );
+      window.objectDetector = await ObjectDetector.createFromOptions(vision, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/object_detector/efficientdet_lite0/float16/1/efficientdet_lite0.tflite",
+          delegate: "GPU"
+        },
+        scoreThreshold: 0.5,
+        runningMode: "VIDEO"
+      });
+      console.log("✅ MediaPipe Object Detector initialized");
+    })();
+  </script>
+  <!-- Load TensorFlow.js (face-api.js v0.x requires TFJS v2.x) -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.2.0/dist/tf.min.js"></script>
+  <!-- Load face-api.js -->
+  <script defer src="face-api.min.js"></script>
+  <!-- Your application logic -->
+  <script type="module" defer src="main.js"></script>
+
+  <!-- Console log to UI -->
+  <script>
+    const originalLog = console.log;
+    console.log = function (...args) {
+      originalLog.apply(console, args);
+      const message = args.join(' ');
+      if (!message.includes('Error') && !message.includes('main.js')) {
+        const logOutput = document.getElementById('log-output');
+        if (logOutput) {
+          logOutput.innerText += message + '\n';
+        }
+      }
+    };
+  </script>
+</body>
+</html>
